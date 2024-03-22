@@ -24,10 +24,22 @@ const _nav = [
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
   {
-    component: CNavItem,
+    component: CNavGroup,
     name: 'Travel Bucket',
     to: '/bucket',
     icon: <CIcon icon={cilPaperPlane} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Travel Bucket List',
+        to: '/bucket',
+      },
+      {
+        component: CNavItem,
+        name: 'Travel Bucket Add',
+        to: '/add_bucket',
+      },
+    ],
   },
 ]
 
