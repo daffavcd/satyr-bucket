@@ -39,7 +39,7 @@ const AppSidebar = () => {
       <CSidebarHeader className="border-bottom">
         <CSidebarBrand to="/">
           {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} /> */}
-          <img src="/public/images/logo.svg" height={32} alt="logo" />
+          <img src="/images/logo.svg" height={32} alt="logo" />
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
         </CSidebarBrand>
         <CCloseButton
