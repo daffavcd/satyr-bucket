@@ -58,7 +58,9 @@ const AppHeader = () => {
             </CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink href="#">Travel Bucket</CNavLink>
+            <CNavLink to="/bucket" as={NavLink}>
+              Travel Bucket
+            </CNavLink>
           </CNavItem>
         </CHeaderNav>
         <CHeaderNav className="ms-auto">&nbsp;</CHeaderNav>
