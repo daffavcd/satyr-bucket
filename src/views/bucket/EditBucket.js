@@ -12,7 +12,7 @@ import {
   CFormText,
   CFormTextarea,
 } from '@coreui/react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
 
 import CIcon from '@coreui/icons-react'
 
@@ -23,7 +23,7 @@ import withReactContent from 'sweetalert2-react-content'
 import { useCookies } from 'react-cookie'
 import { put } from '@vercel/blob'
 
-const AddBucket = () => {
+const EditBucket = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['auth'])
   const [cookiesState, setCookiesState] = useState(null)
   const [formData, setFormData] = useState({
@@ -57,6 +57,39 @@ const AddBucket = () => {
     getCookies()
   }, [])
 
+  const { id } = useParams()
+  const [imageVercel, setImageVercel] = useState(null)
+
+  useEffect(() => {
+    const fetchTravels = async () => {
+      try {
+        const response = await fetch(`${process.env.SATYR_SERVER}/travels/${id}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        })
+        console.log(response)
+        if (!response.ok) {
+          throw new Error(`HTTP error: Status ${response.status}`)
+        }
+        let responseJson = await response.json()
+        setFormData((prevData) => ({
+          ...prevData,
+          name: responseJson.name,
+          location: responseJson.location,
+          estimated_budget: responseJson.estimated_budget,
+          description: responseJson.description,
+          authorId: responseJson.authorId,
+        }))
+        setImageVercel(responseJson.image)
+        console.log(responseJson)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+    fetchTravels()
+  }, [])
+
   const [image, setImage] = useState(null)
 
   const handleChange = (e) => {
@@ -71,14 +104,19 @@ const AddBucket = () => {
     e.preventDefault()
     try {
       // POST IMAGES
+      if (imagePreview != null) {
+        const { url } = await put(
+          `images/${Math.floor(Math.random() * 1000)}_${image.name}`,
+          image,
+          {
+            access: 'public',
+          },
+        )
+        formData.image = url
+      }
 
-      const { url } = await put(`images/${Math.floor(Math.random() * 1000)}_${image.name}`, image, {
-        access: 'public',
-      })
-      formData.image = url
-
-      const response = await fetch(`${process.env.SATYR_SERVER}/travels`, {
-        method: 'POST',
+      const response = await fetch(`${process.env.SATYR_SERVER}/travels/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -114,6 +152,7 @@ const AddBucket = () => {
         setImagePreview(null) // Clear the image preview
         return
       }
+      setImageVercel(null)
       setImage(file)
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -136,7 +175,7 @@ const AddBucket = () => {
       <CCol xs={12}>
         <CCard className="mb-4">
           <CCardHeader className="d-flex">
-            <strong>Add Travel Bucket</strong>
+            <strong>Edit Travel Bucket</strong>
           </CCardHeader>
           <CCardBody className="p-4">
             <CRow>
@@ -197,11 +236,19 @@ const AddBucket = () => {
                     className="mb-2"
                     onChange={handleImageChange}
                     accept="image/*"
-                    required
                   />
                   {imagePreview && (
                     <img
                       src={imagePreview}
+                      height={300}
+                      className="mt-2"
+                      style={{ objectFit: 'cover' }}
+                      alt="Preview Image"
+                    />
+                  )}
+                  {imageVercel && (
+                    <img
+                      src={imageVercel}
                       height={300}
                       className="mt-2"
                       style={{ objectFit: 'cover' }}
@@ -224,4 +271,4 @@ const AddBucket = () => {
   )
 }
 
-export default AddBucket
+export default EditBucket

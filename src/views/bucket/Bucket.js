@@ -14,7 +14,7 @@ import {
   CTableRow,
   CNavLink,
 } from '@coreui/react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Link } from 'react-router-dom'
 
 import CIcon from '@coreui/icons-react'
 
@@ -177,15 +177,19 @@ const Buckets = () => {
                                 : {}
                             }
                           >
-                            <CButton color="info" className="me-2">
-                              <CIcon icon={cilMagnifyingGlass} />
-                            </CButton>
+                            <Link to={`/detail_bucket/${travel.id}`}>
+                              <CButton color="info" className="me-2">
+                                <CIcon icon={cilMagnifyingGlass} />
+                              </CButton>
+                            </Link>
 
                             {cookiesState.id == travel.authorId && (
                               <>
-                                <CButton color="warning" className="me-2">
-                                  <CIcon icon={cilPencil} />
-                                </CButton>
+                                <Link to={`/edit_bucket/${travel.id}`}>
+                                  <CButton color="warning" className="me-2">
+                                    <CIcon icon={cilPencil} />
+                                  </CButton>
+                                </Link>
                                 <CButton
                                   color="danger"
                                   onClick={() => {

@@ -12,7 +12,7 @@ import {
   CFormText,
   CFormTextarea,
 } from '@coreui/react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
 
 import CIcon from '@coreui/icons-react'
 
@@ -23,7 +23,7 @@ import withReactContent from 'sweetalert2-react-content'
 import { useCookies } from 'react-cookie'
 import { put } from '@vercel/blob'
 
-const AddBucket = () => {
+const DetailBucket = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['auth'])
   const [cookiesState, setCookiesState] = useState(null)
   const [formData, setFormData] = useState({
@@ -34,27 +34,37 @@ const AddBucket = () => {
     authorId: -1,
   })
 
+  const { id } = useParams()
+  const [imageVercel, setImageVercel] = useState(null)
+
   useEffect(() => {
-    const getCookies = () => {
-      if (cookies.id != undefined) {
-        setCookiesState({ id: cookies.id, name: cookies.name, email: cookies.email })
+    const fetchTravels = async () => {
+      try {
+        const response = await fetch(`${process.env.SATYR_SERVER}/travels/${id}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        })
+        console.log(response)
+        if (!response.ok) {
+          throw new Error(`HTTP error: Status ${response.status}`)
+        }
+        let responseJson = await response.json()
         setFormData((prevData) => ({
           ...prevData,
-          authorId: cookies.id,
+          name: responseJson.name,
+          location: responseJson.location,
+          estimated_budget: responseJson.estimated_budget,
+          description: responseJson.description,
+          authorId: responseJson.authorId,
         }))
-      } else {
-        withReactContent(Swal)
-          .fire({
-            title: 'Forbidden',
-            text: 'You need to sign in first to access this page',
-            confirmButtonText: 'Oke',
-          })
-          .then((result) => {
-            window.location.href = '/#/login'
-          })
+        setImageVercel(responseJson.image)
+        console.log(responseJson)
+      } catch (err) {
+        console.log(err)
       }
     }
-    getCookies()
+
+    fetchTravels()
   }, [])
 
   const [image, setImage] = useState(null)
@@ -71,14 +81,19 @@ const AddBucket = () => {
     e.preventDefault()
     try {
       // POST IMAGES
+      if (imagePreview != null) {
+        const { url } = await put(
+          `images/${Math.floor(Math.random() * 1000)}_${image.name}`,
+          image,
+          {
+            access: 'public',
+          },
+        )
+        formData.image = url
+      }
 
-      const { url } = await put(`images/${Math.floor(Math.random() * 1000)}_${image.name}`, image, {
-        access: 'public',
-      })
-      formData.image = url
-
-      const response = await fetch(`${process.env.SATYR_SERVER}/travels`, {
-        method: 'POST',
+      const response = await fetch(`${process.env.SATYR_SERVER}/travels/${id}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -114,6 +129,7 @@ const AddBucket = () => {
         setImagePreview(null) // Clear the image preview
         return
       }
+      setImageVercel(null)
       setImage(file)
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -136,7 +152,7 @@ const AddBucket = () => {
       <CCol xs={12}>
         <CCard className="mb-4">
           <CCardHeader className="d-flex">
-            <strong>Add Travel Bucket</strong>
+            <strong>Detail Travel Bucket</strong>
           </CCardHeader>
           <CCardBody className="p-4">
             <CRow>
@@ -150,6 +166,7 @@ const AddBucket = () => {
                     className="mb-2"
                     value={formData.name}
                     onChange={handleChange}
+                    readOnly
                     required
                   />
                 </CCol>
@@ -162,6 +179,7 @@ const AddBucket = () => {
                     className="mb-2"
                     value={formData.location}
                     onChange={handleChange}
+                    readOnly
                     required
                   />
                 </CCol>
@@ -174,6 +192,7 @@ const AddBucket = () => {
                     className="mb-2"
                     value={formData.estimated_budget}
                     onChange={handleChange}
+                    readOnly
                     required
                   />
                 </CCol>
@@ -186,34 +205,20 @@ const AddBucket = () => {
                     rows={3}
                     value={formData.description}
                     onChange={handleChange}
+                    readOnly
                     required
                   ></CFormTextarea>
                 </CCol>
                 <CCol>
-                  <CFormInput
-                    type="file"
-                    id="image"
-                    label="Destination Image"
-                    className="mb-2"
-                    onChange={handleImageChange}
-                    accept="image/*"
-                    required
-                  />
-                  {imagePreview && (
+                  {imageVercel && (
                     <img
-                      src={imagePreview}
+                      src={imageVercel}
                       height={300}
                       className="mt-2"
                       style={{ objectFit: 'cover' }}
                       alt="Preview Image"
                     />
                   )}
-                </CCol>
-                <CCol style={{ textAlign: 'right' }}>
-                  <CButton color="primary" size="lg" type="submit" className="mt-4">
-                    <CIcon icon={cilSave} className="me-2" />
-                    Save
-                  </CButton>
                 </CCol>
               </CForm>
             </CRow>
@@ -224,4 +229,4 @@ const AddBucket = () => {
   )
 }
 
-export default AddBucket
+export default DetailBucket
