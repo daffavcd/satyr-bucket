@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect, useState, React } from 'react'
 import {
   CCard,
   CCardBody,
@@ -20,7 +20,30 @@ import CIcon from '@coreui/icons-react'
 
 import { cilPlus, cilMagnifyingGlass, cilPencil, cilTrash } from '@coreui/icons'
 
-const Tables = () => {
+const Buckets = () => {
+  const [travels, setTravels] = useState(null)
+  useEffect(() => {
+    const fetchTravels = async () => {
+      try {
+        const response = await fetch(`${process.env.SATYR_SERVER}/travels`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        })
+        console.log(response)
+        if (!response.ok) {
+          throw new Error(`HTTP error: Status ${response.status}`)
+        }
+        let responseJson = await response.json()
+        console.log(responseJson)
+        setTravels(responseJson)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+    fetchTravels()
+  }, [])
+
   return (
     <CRow>
       <CCol xs={12} className="mb-4">
@@ -47,56 +70,36 @@ const Tables = () => {
                   <CTableHeaderCell scope="col">Action</CTableHeaderCell>
                 </CTableRow>
               </CTableHead>
-              <CTableBody>
-                <CTableRow>
-                  <CTableHeaderCell scope="row">1</CTableHeaderCell>
-                  <CTableDataCell>Mark</CTableDataCell>
-                  <CTableDataCell>Otto</CTableDataCell>
-                  <CTableDataCell>
-                    <CButton color="info" className="me-2">
-                      <CIcon icon={cilMagnifyingGlass} />
-                    </CButton>
-                    <CButton color="warning" className="me-2">
-                      <CIcon icon={cilPencil} />
-                    </CButton>
-                    <CButton color="danger" className="me-2">
-                      <CIcon icon={cilTrash} />
-                    </CButton>
-                  </CTableDataCell>
-                </CTableRow>
-                <CTableRow>
-                  <CTableHeaderCell scope="row">2</CTableHeaderCell>
-                  <CTableDataCell>Jacob</CTableDataCell>
-                  <CTableDataCell>Thornton</CTableDataCell>
-                  <CTableDataCell>
-                    <CButton color="info" className="me-2">
-                      <CIcon icon={cilMagnifyingGlass} />
-                    </CButton>
-                    <CButton color="warning" className="me-2">
-                      <CIcon icon={cilPencil} />
-                    </CButton>
-                    <CButton color="danger" className="me-2">
-                      <CIcon icon={cilTrash} />
-                    </CButton>
-                  </CTableDataCell>
-                </CTableRow>
-                <CTableRow>
-                  <CTableHeaderCell scope="row">3</CTableHeaderCell>
-                  <CTableDataCell>@fat</CTableDataCell>
-                  <CTableDataCell>@fat</CTableDataCell>
-                  <CTableDataCell>
-                    <CButton color="info" className="me-2">
-                      <CIcon icon={cilMagnifyingGlass} />
-                    </CButton>
-                    <CButton color="warning" className="me-2">
-                      <CIcon icon={cilPencil} />
-                    </CButton>
-                    <CButton color="danger" className="me-2">
-                      <CIcon icon={cilTrash} />
-                    </CButton>
-                  </CTableDataCell>
-                </CTableRow>
-              </CTableBody>
+              {travels ? (
+                <CTableBody>
+                  {travels.map((travel, index) => (
+                    <CTableRow key={index}>
+                      <CTableHeaderCell scope="row">1</CTableHeaderCell>
+                      <CTableDataCell>{travel.name}</CTableDataCell>
+                      <CTableDataCell>{travel.location}</CTableDataCell>
+                      <CTableDataCell>
+                        <CButton color="info" className="me-2">
+                          <CIcon icon={cilMagnifyingGlass} />
+                        </CButton>
+                        <CButton color="warning" className="me-2">
+                          <CIcon icon={cilPencil} />
+                        </CButton>
+                        <CButton color="danger" className="me-2">
+                          <CIcon icon={cilTrash} />
+                        </CButton>
+                      </CTableDataCell>
+                    </CTableRow>
+                  ))}
+                </CTableBody>
+              ) : (
+                <CTableBody>
+                  <CTableRow>
+                    <CTableDataCell colspan="4" className="text-center">
+                      No data available.
+                    </CTableDataCell>
+                  </CTableRow>
+                </CTableBody>
+              )}
             </CTable>
           </CCardBody>
         </CCard>
@@ -105,4 +108,4 @@ const Tables = () => {
   )
 }
 
-export default Tables
+export default Buckets
