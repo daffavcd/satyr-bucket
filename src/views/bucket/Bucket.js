@@ -22,8 +22,20 @@ import { cilPlus, cilMagnifyingGlass, cilPencil, cilTrash } from '@coreui/icons'
 
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { useCookies } from 'react-cookie'
 
 const Buckets = () => {
+  const [cookies, setCookie, removeCookie] = useCookies(['auth'])
+  const [cookiesState, setCookiesState] = useState(null)
+  useEffect(() => {
+    const getCookies = () => {
+      if (cookies.id != undefined) {
+        setCookiesState({ id: cookies.id, name: cookies.name, email: cookies.email })
+      }
+    }
+    getCookies()
+  }, [])
+
   const [travels, setTravels] = useState(null)
   useEffect(() => {
     const fetchTravels = async () => {
@@ -100,12 +112,12 @@ const Buckets = () => {
     <>
       <CRow>
         <CCol xs={12} className="mb-4">
-          <CNavLink to="/add_bucket" as={NavLink}>
-            <CButton color="primary" className="r-0">
+          <CButton color="primary" className="r-0">
+            <CNavLink to="/add_bucket" as={NavLink}>
               <CIcon icon={cilPlus} className="me-2" />
               Add Travel Bucket
-            </CButton>
-          </CNavLink>
+            </CNavLink>
+          </CButton>
         </CCol>
         <CCol xs={12}>
           <CCard className="mb-4">
@@ -129,25 +141,61 @@ const Buckets = () => {
                   <CTableBody>
                     {travels.map((travel, index) => (
                       <CTableRow key={index}>
-                        <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                        <CTableDataCell>{travel.name}</CTableDataCell>
-                        <CTableDataCell>{travel.location}</CTableDataCell>
-                        <CTableDataCell>
+                        <CTableHeaderCell
+                          scope="row"
+                          style={
+                            cookiesState.id == travel.authorId
+                              ? { backgroundColor: 'aliceblue' }
+                              : {}
+                          }
+                        >
+                          {index + 1}
+                        </CTableHeaderCell>
+                        <CTableDataCell
+                          style={
+                            cookiesState.id == travel.authorId
+                              ? { backgroundColor: 'aliceblue' }
+                              : {}
+                          }
+                        >
+                          {travel.name}
+                        </CTableDataCell>
+                        <CTableDataCell
+                          style={
+                            cookiesState.id == travel.authorId
+                              ? { backgroundColor: 'aliceblue' }
+                              : {}
+                          }
+                        >
+                          {travel.location}
+                        </CTableDataCell>
+                        <CTableDataCell
+                          style={
+                            cookiesState.id == travel.authorId
+                              ? { backgroundColor: 'aliceblue' }
+                              : {}
+                          }
+                        >
                           <CButton color="info" className="me-2">
                             <CIcon icon={cilMagnifyingGlass} />
                           </CButton>
-                          <CButton color="warning" className="me-2">
-                            <CIcon icon={cilPencil} />
-                          </CButton>
-                          <CButton
-                            color="danger"
-                            onClick={() => {
-                              deleteTravel(travel.id)
-                            }}
-                            className="me-2"
-                          >
-                            <CIcon icon={cilTrash} />
-                          </CButton>
+
+                          {cookiesState.id == travel.authorId && (
+                            <>
+                              <CButton color="warning" className="me-2">
+                                <CIcon icon={cilPencil} />
+                              </CButton>
+                              <CButton
+                                color="danger"
+                                onClick={() => {
+                                  deleteTravel(travel.id)
+                                }}
+                                className="me-2"
+                              >
+                                <CIcon icon={cilTrash} />
+                              </CButton>
+                            </>
+                          )}
                         </CTableDataCell>
                       </CTableRow>
                     ))}

@@ -20,15 +20,41 @@ import { cilSave, cilList } from '@coreui/icons'
 
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { useCookies } from 'react-cookie'
 
 const Tables = () => {
+  const [cookies, setCookie, removeCookie] = useCookies(['auth'])
+  const [cookiesState, setCookiesState] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     location: '',
     estimated_budget: '',
     description: '',
-    authorId: 1,
+    authorId: -1,
   })
+
+  useEffect(() => {
+    const getCookies = () => {
+      if (cookies.id != undefined) {
+        setCookiesState({ id: cookies.id, name: cookies.name, email: cookies.email })
+        setFormData((prevData) => ({
+          ...prevData,
+          authorId: cookies.id,
+        }))
+      } else {
+        withReactContent(Swal)
+          .fire({
+            title: 'Forbidden',
+            text: 'You need to sign in first to access this page',
+            confirmButtonText: 'Oke',
+          })
+          .then((result) => {
+            window.location.href = '/#/login'
+          })
+      }
+    }
+    getCookies()
+  }, [])
 
   const [image, setImage] = useState(null)
 
@@ -43,21 +69,6 @@ const Tables = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      // UPLOAD IMAGE
-      // const formData = new FormData()
-      // formData.append('image', image)
-
-      // const responseImage = await fetch('/public/images/travels', {
-      //   method: 'POST',
-      //   body: formData,
-      // })
-
-      // if (!responseImage.ok) {
-      //   throw new Error('Failed to upload image')
-      // }
-
-      // console.log('Image uploaded successfully')
-
       const response = await fetch(`${process.env.SATYR_SERVER}/travels`, {
         method: 'POST',
         headers: {
@@ -69,14 +80,6 @@ const Tables = () => {
         throw new Error(`HTTP error: Status ${response.status}`)
       }
       console.log('Data posted successfully')
-      setFormData({
-        name: '',
-        location: '',
-        estimated_budget: '',
-        description: '',
-        image: '',
-        authorId: 1,
-      })
 
       withReactContent(Swal)
         .fire({
@@ -109,12 +112,12 @@ const Tables = () => {
   return (
     <CRow>
       <CCol xs={12} className="mb-4">
-        <CNavLink to="/bucket" as={NavLink}>
-          <CButton color="secondary" className="r-0">
+        <CButton color="secondary" className="r-0">
+          <CNavLink to="/bucket" as={NavLink}>
             <CIcon icon={cilList} className="me-2" />
             Travel Bucket List
-          </CButton>
-        </CNavLink>
+          </CNavLink>
+        </CButton>
       </CCol>
       <CCol xs={12}>
         <CCard className="mb-4">
@@ -165,6 +168,7 @@ const Tables = () => {
                     id="description"
                     label="Description"
                     placeholder="Tell them about what you'd recomend abaout this place..."
+                    className="mb-2"
                     rows={3}
                     value={formData.description}
                     onChange={handleChange}
