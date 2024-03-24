@@ -35,6 +35,15 @@ const Register = () => {
     }))
   }
 
+  useEffect(() => {
+    const getCookies = () => {
+      if (cookies.id != undefined) {
+        window.location.href = '/#/dashboard'
+      }
+    }
+    getCookies()
+  }, [])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (formData.password !== formData.passwordRe) {

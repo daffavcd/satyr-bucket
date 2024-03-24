@@ -21,6 +21,7 @@ import { cilSave, cilList } from '@coreui/icons'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { useCookies } from 'react-cookie'
+import { put } from '@vercel/blob'
 
 const Tables = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['auth'])
@@ -56,6 +57,21 @@ const Tables = () => {
     getCookies()
   }, [])
 
+  useEffect(() => {
+    // const fetchTravels = async () => {
+    //   try {
+    //     // const { url } = await put('articles/blob.txt', 'Hello World!', { access: 'public' })
+    //     // console.log(url)
+    //     console.log('wewewe')
+    //   } catch (err) {
+    //     console.log(err)
+    //   }
+    // }
+
+    // fetchTravels()
+    console.log('wewewe123')
+  }, [])
+
   const [image, setImage] = useState(null)
 
   const handleChange = (e) => {
@@ -69,6 +85,13 @@ const Tables = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      // POST IMAGES
+
+      const { url } = await put(`images/${Math.floor(Math.random() * 1000)}_${image.name}`, image, {
+        access: 'public',
+      })
+      formData.image = url
+
       const response = await fetch(`${process.env.SATYR_SERVER}/travels`, {
         method: 'POST',
         headers: {
@@ -96,10 +119,16 @@ const Tables = () => {
   }
 
   const [imagePreview, setImagePreview] = useState(null)
-
+  const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3MB in bytes
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        alert('File size exceeds the maximum limit of 3MB.')
+        e.target.value = null // Clear the input field
+        setImagePreview(null) // Clear the image preview
+        return
+      }
       setImage(file)
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -182,6 +211,7 @@ const Tables = () => {
                     label="Destination Image"
                     className="mb-2"
                     onChange={handleImageChange}
+                    accept="image/*"
                     required
                   />
                   {imagePreview && (
