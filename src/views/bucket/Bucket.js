@@ -145,7 +145,7 @@ const Buckets = () => {
                           <CTableHeaderCell
                             scope="row"
                             style={
-                              cookiesState.id == travel.authorId
+                              cookiesState?.id == travel.authorId
                                 ? { backgroundColor: 'aliceblue' }
                                 : {}
                             }
@@ -154,7 +154,7 @@ const Buckets = () => {
                           </CTableHeaderCell>
                           <CTableDataCell
                             style={
-                              cookiesState.id == travel.authorId
+                              cookiesState?.id == travel.authorId
                                 ? { backgroundColor: 'aliceblue' }
                                 : {}
                             }
@@ -163,7 +163,7 @@ const Buckets = () => {
                           </CTableDataCell>
                           <CTableDataCell
                             style={
-                              cookiesState.id == travel.authorId
+                              cookiesState?.id == travel.authorId
                                 ? { backgroundColor: 'aliceblue' }
                                 : {}
                             }
@@ -172,7 +172,7 @@ const Buckets = () => {
                           </CTableDataCell>
                           <CTableDataCell
                             style={
-                              cookiesState.id == travel.authorId
+                              cookiesState?.id == travel.authorId
                                 ? { backgroundColor: 'aliceblue' }
                                 : {}
                             }
@@ -183,7 +183,7 @@ const Buckets = () => {
                               </CButton>
                             </Link>
 
-                            {cookiesState.id == travel.authorId && (
+                            {cookiesState?.id == travel.authorId && (
                               <>
                                 <Link to={`/edit_bucket/${travel.id}`}>
                                   <CButton color="warning" className="me-2">
